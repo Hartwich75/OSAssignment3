@@ -1,0 +1,9 @@
+*.o
+*.h
+mm_test
+*.exe
+malloc_check
+/.idea
+/cmd_int
+/main
+/.vscode
