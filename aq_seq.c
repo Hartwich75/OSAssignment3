@@ -6,7 +6,7 @@
  */
 
 #include "aq.h"
-#include "<stdlib.h>"
+#include <stdlib.h>
 
 typedef struct {
     void *alarm_msg;
@@ -28,10 +28,10 @@ AlarmQueue aq_create( ) {
     return (AlarmQueue)aq;
 }
 
-int aq_send( AlarmQueue aq, void * msg, MsgKind k){
+int aq_send(AlarmQueue aq, void * msg, MsgKind k){
     AlarmQueueStruct *queue = (AlarmQueueStruct *)aq;
 
-    if (kind == AQ_ALARM) {
+    if (k == AQ_ALARM) {
         if(queue -> alarm_msg != NULL){
             return AQ_NO_ROOM;
         }
@@ -39,7 +39,7 @@ int aq_send( AlarmQueue aq, void * msg, MsgKind k){
 
         return 0;
 
-    } else if (kind == AQ_NORMAL){
+    } else if (k == AQ_NORMAL){
         if (queue -> normal_count >= queue -> max_normal_msgs){
             return AQ_NO_ROOM;
         }
@@ -51,7 +51,7 @@ int aq_send( AlarmQueue aq, void * msg, MsgKind k){
     return -1;
 }
 
-int aq_recv( AlarmQueue aq, void * * msg) {
+int aq_recv( AlarmQueue aq, void * * pmsg) {
     AlarmQueueStruct *queue = (AlarmQueueStruct *)aq;
 
     if (queue -> alarm_msg != NULL){
