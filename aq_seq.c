@@ -6,25 +6,80 @@
  */
 
 #include "aq.h"
+#include "<stdlib.h>"
+
+typedef struct {
+    void *alarm_msg;
+    void **normal_msgs;
+    int normal_count;
+    int max_normal_msgs;
+} AlarmQueueStruct;
 
 AlarmQueue aq_create( ) {
-  return NULL;
+    AlarmQueueStruct *aq = (AlarmQueueStruct *) malloc(sizeof (AlarmQueueStruct));
+
+    if (!aq) return NULL;
+
+    aq -> alarm_msg = NULL;
+    aq -> normal_msgs = (void **) malloc(sizeof (void *) * 100);
+    aq -> normal_count = 0;
+    aq -> max_normal_msgs = 100;
+
+    return (AlarmQueue)aq;
 }
 
 int aq_send( AlarmQueue aq, void * msg, MsgKind k){
-  return AQ_NOT_IMPL;
+    AlarmQueueStruct *queue = (AlarmQueueStruct *)aq;
+
+    if (kind == AQ_ALARM) {
+        if(queue -> alarm_msg != NULL){
+            return AQ_NO_ROOM;
+        }
+        queue -> alarm_msg = msg;
+
+        return 0;
+
+    } else if (kind == AQ_NORMAL){
+        if (queue -> normal_count >= queue -> max_normal_msgs){
+            return AQ_NO_ROOM;
+        }
+        queue -> normal_msgs[queue -> normal_count++] = msg;
+
+        return 0;
+    }
+
+    return -1;
 }
 
 int aq_recv( AlarmQueue aq, void * * msg) {
-  return AQ_NOT_IMPL;
+    AlarmQueueStruct *queue = (AlarmQueueStruct *)aq;
+
+    if (queue -> alarm_msg != NULL){
+        *pmsg = queue -> alarm_msg;
+        queue -> alarm_msg = NULL;
+
+        return AQ_ALARM;
+    } else if (queue -> normal_count > 0){
+        *pmsg = queue -> normal_msgs[0];
+
+        for (int i = 1; i < queue -> normal_count; ++i){
+            queue -> normal_msgs[i - 1] = queue -> normal_msgs[i];
+        }
+        queue -> normal_count--;
+        return AQ_NORMAL;
+    }
+
+    return AQ_NO_MSG;
 }
 
 int aq_size( AlarmQueue aq) {
-  return 0;
+    AlarmQueueStruct *queue = (AlarmQueueStruct *)aq;
+    return queue -> normal_count + (queue -> alarm_msg ? 1 : 0);
 }
 
 int aq_alarms( AlarmQueue aq) {
-  return 0;
+    AlarmQueueStruct *queue = (AlarmQueueStruct *)aq;
+    return queue -> alarm_msg ? 1 : 0;
 }
 
 
