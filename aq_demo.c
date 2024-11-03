@@ -24,7 +24,7 @@ int main(int argc, char ** argv) {
     printf("Alarm queue could not be created\n");
     exit(1);
   }
-
+  assert(get(q)==AQ_NO_MSG);
   put_normal(q, 1);
   put_normal(q, 2);
   put_alarm (q, 3);

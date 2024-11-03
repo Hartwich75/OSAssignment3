@@ -16,7 +16,7 @@ int put_normal(AlarmQueue q, int val) {
   m->value = val;
   int ret = aq_send(q, m, AQ_NORMAL);
   if (ret < 0) {
-    printf("ERRROR: put_normal %d got %d\n", val, ret);
+    printf("ERROR: put_normal %d got %d\n", val, ret);
     return ret;
   }
    
