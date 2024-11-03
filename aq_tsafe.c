@@ -7,6 +7,7 @@
 
 #include "aq.h"
 #include <pthread.h>
+#include <stdlib.h>
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 int shared_data = 0;
@@ -19,8 +20,21 @@ typedef struct {
     pthread_mutex_t mutex;
 } AlarmQueueStruct;
 
-AlarmQueue aq_create( ) {
-    return AQ_NOT_IMPL;
+AlarmQueue aq_create() {
+    AlarmQueueStruct *aq = (AlarmQueueStruct *) malloc(sizeof(AlarmQueueStruct));
+    if (!aq) return NULL;
+    aq->alarm_msg = NULL;
+    aq->normal_msgs = (void **) malloc(sizeof(void *) * 100);
+    aq -> mutex = PTHREAD_MUTEX_INITIALIZER;
+    int returnCode = pthread_mutex_init(mutex);
+    if (returnCode != 0 || !aq->normal_msgs) {
+        free(aq);
+        return NULL;
+    }
+    aq->normal_count = 0;
+    aq->max_normal_msgs = 100;
+
+    return aq;
 }
 
 int aq_send( AlarmQueue aq, void * msg, MsgKind k){
