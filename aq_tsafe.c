@@ -25,15 +25,12 @@ AlarmQueue aq_create() {
     if (!aq) return NULL;
     aq->alarm_msg = NULL;
     aq->normal_msgs = (void **) malloc(sizeof(void *) * 100);
-    aq -> mutex = PTHREAD_MUTEX_INITIALIZER;
-    int returnCode = pthread_mutex_init(mutex);
-    if (returnCode != 0 || !aq->normal_msgs) {
+    if (pthread_mutex_init(&aq->mutex, NULL) != 0 || !aq->normal_msgs) {
         free(aq);
         return NULL;
     }
     aq->normal_count = 0;
     aq->max_normal_msgs = 100;
-
     return aq;
 }
 
