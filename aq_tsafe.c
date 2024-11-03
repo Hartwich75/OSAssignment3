@@ -26,6 +26,7 @@ AlarmQueue aq_create() {
     aq->alarm_msg = NULL;
     aq->normal_msgs = (void **) malloc(sizeof(void *) * 100);
     if (pthread_mutex_init(&aq->mutex, NULL) != 0 || !aq->normal_msgs) {
+        //if mutex init or malloc fails, free the allocated memory and return NULL
         free(aq);
         return NULL;
     }
