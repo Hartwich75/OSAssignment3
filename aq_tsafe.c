@@ -35,9 +35,35 @@ AlarmQueue aq_create() {
     return aq;
 }
 
-int aq_send( AlarmQueue aq, void * msg, MsgKind k){
-  return AQ_NOT_IMPL;
+
+#include <pthread.h>
+
+int aq_send(AlarmQueue aq, void *msg, MsgKind k) {
+    AlarmQueueStruct *queue = (AlarmQueueStruct *)aq;
+    int result = -1; // Assume failure
+
+    pthread_mutex_lock(&queue->mutex); // Lock the mutex or halt until it is unlocked
+
+    // Block if necessary until there is room in the queue
+    while ((k == AQ_ALARM && queue->alarm_msg != NULL) ||
+           (k == AQ_NORMAL && queue->normal_count >= queue->max_normal_msgs)) {
+        pthread_cond_wait(&queue->cond, &queue->mutex); //wait for signal
+    }
+    // Place the message in the queue. If there is no room, something went wrong
+    if (k == AQ_ALARM && queue->alarm_msg == NULL) {
+        queue->alarm_msg = msg;
+        result = 0;
+    } else if (k == AQ_NORMAL && queue->normal_count < queue->max_normal_msgs) {
+        queue->normal_msgs[queue->normal_count++] = msg;
+        result = 0;
+    }
+    // Notify other threads that may be waiting for space
+    pthread_cond_signal(&queue->cond);
+    pthread_mutex_unlock(&queue->mutex);
+    return result;
 }
+
+
 
 int aq_recv( AlarmQueue aq, void * * msg) {
   return AQ_NOT_IMPL;
