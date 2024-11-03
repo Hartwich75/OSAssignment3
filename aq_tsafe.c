@@ -91,6 +91,7 @@ int aq_recv( AlarmQueue aq, void * * msg) {
         if *pmsg != NULL){result = 0;} //success
         //return AQ_NORMAL;
     }
+    pthread_mutex_unlock(&queue->mutex);
     return result;
 }
 
