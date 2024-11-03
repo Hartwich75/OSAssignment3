@@ -18,6 +18,7 @@ typedef struct {
     int normal_count;
     int max_normal_msgs;
     pthread_mutex_t mutex;
+    pthread_cond_t cond;
 } AlarmQueueStruct;
 
 AlarmQueue aq_create() {
@@ -47,7 +48,7 @@ int aq_send(AlarmQueue aq, void *msg, MsgKind k) {
     // Block if necessary until there is room in the queue
     while ((k == AQ_ALARM && queue->alarm_msg != NULL) ||
            (k == AQ_NORMAL && queue->normal_count >= queue->max_normal_msgs)) {
-        pthread_cond_wait(&queue->cond, &queue->mutex); //wait for signal
+        pthread_cond_wait(&queue->cond, &queue->mutex); //wait for signal and temporarily unlock the mutex
     }
     // Place the message in the queue. If there is no room, something went wrong
     if (k == AQ_ALARM && queue->alarm_msg == NULL) {
@@ -66,8 +67,33 @@ int aq_send(AlarmQueue aq, void *msg, MsgKind k) {
 
 
 int aq_recv( AlarmQueue aq, void * * msg) {
-  return AQ_NOT_IMPL;
+    AlarmQueueStruct *queue = (AlarmQueueStruct *)aq;
+    int result = -1; // Assume failure
+
+    pthread_mutex_lock(&queue->mutex);
+    while (queue->alarm_msg == NULL && queue->normal_count == 0) {
+        pthread_cond_wait(&queue->cond, &queue->mutex); //wait for signal and temporarily unlock the mutex
+    }
+    while (queue -> alarm_msg != NULL){
+        *pmsg = queue -> alarm_msg;
+        queue -> alarm_msg = NULL;
+        result = 0;
+        //return AQ_ALARM;
+    } else if (queue -> normal_count > 0){
+        //Dequeue the first message
+        *pmsg = queue -> normal_msgs[0];
+
+        for (int i = 1; i < queue -> normal_count; ++i){
+            //shift the messages forward
+            queue -> normal_msgs[i - 1] = queue -> normal_msgs[i];
+        }
+        queue -> normal_count--;
+        if *pmsg != NULL){result = 0;} //success
+        //return AQ_NORMAL;
+    }
+    return result;
 }
+
 
 int aq_size( AlarmQueue aq) {
   return 0;
