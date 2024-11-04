@@ -107,7 +107,10 @@ int aq_size( AlarmQueue aq) {
 }
 
 int aq_alarms( AlarmQueue aq) {
-  return 0;
+    pthread_mutex_lock(&queue->mutex);
+    int size = queue->alarm_msg ? 1 : 0;
+    pthread_mutex_unlock(&queue->mutex);
+    return size;
 }
 
 
