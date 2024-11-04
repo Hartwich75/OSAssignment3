@@ -88,7 +88,7 @@ int aq_recv( AlarmQueue aq, void * * msg) {
             queue -> normal_msgs[i - 1] = queue -> normal_msgs[i];
         }
         queue -> normal_count--;
-        if *pmsg != NULL){result = 0;} //success
+        if (*pmsg != NULL){result = 0;} //success
         //return AQ_NORMAL;
     }
     pthread_mutex_unlock(&queue->mutex);
