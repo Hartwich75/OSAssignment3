@@ -99,7 +99,11 @@ int aq_recv(AlarmQueue aq, void **pmsg) {
 
 
 int aq_size( AlarmQueue aq) {
-  return 0;
+    AlarmQueueStruct *queue = (AlarmQueueStruct *)aq;
+    pthread_mutex_lock(&queue->mutex);
+    int size = queue->normal_count + (queue->alarm_msg ? 1 : 0);
+    pthread_mutex_unlock(&queue->mutex);
+    return size;
 }
 
 int aq_alarms( AlarmQueue aq) {
