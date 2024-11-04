@@ -66,7 +66,7 @@ int aq_send(AlarmQueue aq, void *msg, MsgKind k) {
 
 
 
-int aq_recv(AlarmQueue aq, void **msg) {
+int aq_recv(AlarmQueue aq, void **pmsg) {
     AlarmQueueStruct *queue = (AlarmQueueStruct *)aq;
     int result = -1; // Assume failure
 
@@ -75,20 +75,20 @@ int aq_recv(AlarmQueue aq, void **msg) {
         pthread_cond_wait(&queue->cond, &queue->mutex); //wait for signal and temporarily unlock the mutex
     }
     if (queue->alarm_msg != NULL) {
-        *msg = queue->alarm_msg;
+        *pmsg = queue->alarm_msg;
         queue->alarm_msg = NULL;
         result = 0;
         //return AQ_ALARM;
     } else if (queue->normal_count > 0) {
         //Dequeue the first message
-        *msg = queue->normal_msgs[0];
+        *pmsg = queue->normal_msgs[0];
 
         for (int i = 1; i < queue->normal_count; ++i) {
             //shift the messages forward
             queue->normal_msgs[i - 1] = queue->normal_msgs[i];
         }
         queue->normal_count--;
-        if (*msg != NULL) {
+        if (*pmsg != NULL) {
             result = 0; //success
         }
         //return AQ_NORMAL;
