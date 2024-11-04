@@ -38,7 +38,7 @@ AlarmQueue aq_create() {
         return NULL;
     }
 
-    return aq;
+    return (AlarmQueue) aq;
 }
 
 int aq_send(AlarmQueue aq, void *msg, MsgKind k) {
@@ -66,20 +66,20 @@ int aq_send(AlarmQueue aq, void *msg, MsgKind k) {
     return result;
 }
 
-
-
-int aq_recv( AlarmQueue aq, void * * msg) {
+int aq_recv(AlarmQueue aq, void * * pmsg) {
     AlarmQueueStruct *queue = (AlarmQueueStruct *)aq;
     int result = -1; // Assume failure
 
     pthread_mutex_lock(&queue->mutex);
+
     while (queue->alarm_msg == NULL && queue->normal_count == 0) {
         pthread_cond_wait(&queue->cond, &queue->mutex); //wait for signal and temporarily unlock the mutex
     }
-    while (queue -> alarm_msg != NULL){
+
+    if (queue -> alarm_msg != NULL){
         *pmsg = queue -> alarm_msg;
         queue -> alarm_msg = NULL;
-        result = 0;
+        result = AQ_ALARM;
         //return AQ_ALARM;
     } else if (queue -> normal_count > 0){
         //Dequeue the first message
@@ -90,20 +90,31 @@ int aq_recv( AlarmQueue aq, void * * msg) {
             queue -> normal_msgs[i - 1] = queue -> normal_msgs[i];
         }
         queue -> normal_count--;
-        if *pmsg != NULL){result = 0;} //success
+        result = AQ_NORMAL; //success
         //return AQ_NORMAL;
     }
+    pthread_cond_signal(&queue -> cond);
     pthread_mutex_unlock(&queue->mutex);
     return result;
 }
 
 
 int aq_size( AlarmQueue aq) {
-  return 0;
+    AlarmQueueStruct *queue = (AlarmQueueStruct *)aq;
+    pthread_mutex_lock(&queue -> mutex);
+    int size = queue -> normal_count + (queue -> alarm_msg ? 1 : 0);
+    pthread_mutex_unlock(&queue -> mutex);
+
+  return size;
 }
 
 int aq_alarms( AlarmQueue aq) {
-  return 0;
+    AlarmQueueStruct  *queue = (AlarmQueueStruct *)aq;
+    pthread_mutex_lock(&queue -> mutex);
+    int alarms = queue -> alarm_msg ? 1 : 0;
+    pthread_mutex_unlock(&queue -> mutex);
+
+  return alarms;
 }
 
 
