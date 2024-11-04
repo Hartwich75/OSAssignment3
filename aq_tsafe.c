@@ -95,8 +95,7 @@ int aq_recv(AlarmQueue aq, void * * pmsg) {
         result = AQ_NORMAL; //success
         //return AQ_NORMAL;
     }
-    //TODO check is this necessary?
-    //pthread_cond_signal(&queue -> cond);
+    pthread_cond_signal(&queue -> cond);
     pthread_mutex_unlock(&queue->mutex);
     return result;
 }
