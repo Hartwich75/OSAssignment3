@@ -34,11 +34,11 @@ void *consumer_thread(void *arg) {
     for (int i = 0; i < NUM_MESSAGES; i++) {
         int result = get(q);
         if (result >= 100) {
-            printf("Received ALARM message with value %d\n", result);
+            //printf("Received ALARM message with value %d\n", result);
         } else if (result >= 0) {
-            printf("Received normal message with value %d\n", result);
+            //printf("Received normal message with value %d\n", result);
         } else {
-            printf("Error receiving message\n");
+            //printf("Error receiving message\n");
             assert(0);
         }
         msleep(rand() % 100);
