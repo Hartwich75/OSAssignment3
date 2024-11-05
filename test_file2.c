@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <time.h>
+#include <assert.h>
 #include "aq.h"
 #include "aux.h"
 
@@ -34,6 +35,7 @@ void *consumer_thread(void *arg) {
             printf("Received normal message with value %d\n", result);
         } else {
             printf("Error receiving message\n");
+            assert(0);
         }
         msleep(rand() % 100);
     }
@@ -73,6 +75,5 @@ int main() {
     }
 
     printf("Test complete. Checking for deadlocks.\n");
-
     return 0;
 }
