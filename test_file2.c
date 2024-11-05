@@ -74,6 +74,6 @@ int main() {
         pthread_join(consumers[i], NULL);
     }
 
-    printf("Test complete. Checking for deadlocks.\n");
+    printf("Test complete. No deadlocks found.\n");
     return 0;
 }
