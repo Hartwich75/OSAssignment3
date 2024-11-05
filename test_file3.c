@@ -18,12 +18,12 @@ void *producer_thread(void *arg) {
         if (i % 3 == 0 || i < 5) {
              result = put_alarm(q, i + 100);
 
-            printf("Sent ALARM message with value %d\n", i + 100);
+           // printf("Sent ALARM message with value %d\n", i + 100);
         } else {
              result = put_normal(q, i);
-            printf("Sent normal message with value %d\n", i);
+            //printf("Sent normal message with value %d\n", i);
         }
-        printf("result: %d\n", result);
+        //printf("result: %d\n", result);
         assert(result==i+100|| result == i);
         msleep(rand() % 100);
     }
