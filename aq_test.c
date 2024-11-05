@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <pthread.h>
-
+#include <assert.h>
 #include "aq.h"
 
 #include "aux.h"
@@ -65,7 +65,8 @@ int main(int argc, char ** argv) {
 
   printf("----------------\n");
   printf("Threads terminated with %ld, %ld\n", (uintptr_t) res1, (uintptr_t) res2);
-
+  assert (res1==0);
+  assert (res2==0);
   print_sizes(q);
   
   return 0;
