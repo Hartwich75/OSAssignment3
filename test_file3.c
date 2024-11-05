@@ -13,14 +13,18 @@
 static AlarmQueue q;
 
 void *producer_thread(void *arg) {
+    int result = -1;
     for (int i = 0; i < NUM_MESSAGES; i++) {
-        if (i % 3 == 0) {
-            put_alarm(q, i + 100);
+        if (i % 3 == 0 || i < 5) {
+             result = put_alarm(q, i + 100);
+
             printf("Sent ALARM message with value %d\n", i + 100);
         } else {
-            put_normal(q, i);
+             result = put_normal(q, i);
             printf("Sent normal message with value %d\n", i);
         }
+        printf("result: %d\n", result);
+        assert(result==i+100|| result == i);
         msleep(rand() % 100);
     }
     return NULL;
